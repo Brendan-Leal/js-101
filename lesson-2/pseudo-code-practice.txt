@@ -1,0 +1,92 @@
+A function that returns the sum of two numbers 
+
+casual:
+
+Given two numbers return the value of their sum
+
+Formal:
+
+START
+Given num1 and num2
+return num1 + num2
+END
+=============================================
+A function that takes an array of strings, and returns a string that is all those strings concatenated together 
+
+casual: 
+
+Given a list of words
+
+Declare a variable that will hold the final resulting string
+
+Iterate over each word concatenating each one to the final result
+followed by a space.
+
+return the final result
+
+Formal: 
+
+START
+
+Given an array of strings called words
+
+SET sentence = an empty string ""
+
+FOR EACH element in words keep track of the index you are at.
+	IF the index != the end of the words array
+		Then concatenate the element to sentence followed by a space " "
+	ELSE
+		concatenate the element *with out the trailing space*
+RETURN setence
+================================================
+A function that takes an array of integers, and returns a new array with every other element 
+
+casual:
+
+Given a list of numbers
+
+Create an empty array to store the result
+
+Iterate over each number skipping over every other element
+
+return the new array
+
+Formal:
+
+START
+
+Given an array of numbers called allNumbers
+
+SET everyOtherNumber = [];
+
+starting at index 0
+FOR every index in the allNumbers array 
+	IF the (index % 2 === 0)
+		push that element to the everyOtherNumber array
+	index + 1
+		
+RETURN everyOtherNumber
+
+END
+		 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
