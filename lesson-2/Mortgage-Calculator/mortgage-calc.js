@@ -1,9 +1,30 @@
 const readline = require("readline-sync");
+let again;
 let apr = 0;
-let loanAmount = getLoanAmount();
-let monthlyIntrestRate = getMonthlyIntrestRate();
-let loanDuration = getLoanDurration();
-let monthlyPayments = getMonthlyPayments(loanAmount, monthlyIntrestRate, loanDuration);
+
+do {
+
+  let loanAmount = getLoanAmount();
+  let monthlyIntrestRate = getMonthlyIntrestRate();
+  let loanDuration = getLoanDurration();
+  let monthlyPayments = getMonthlyPayments(loanAmount, monthlyIntrestRate, loanDuration);
+
+  //Formated output
+  console.log(`\nWith the loan amount of $${loanAmount}`);
+  console.log(`and an APR of ${apr}% for ${loanDuration} months,`);
+  console.log(`your monthly payments will be $${monthlyPayments.toFixed(2)}`);
+
+  //Ask the user if they want to calculate another loan
+  console.log("\nDo you want to calculate another loan?");
+  again = readline.question("[y/n] ");
+
+  //Validate again to be 'y' or 'n'
+  while (again.toLowerCase() !== 'y' && again.toLowerCase() !== "n") {
+    console.log("Invalid input");
+    again = readline.question("[y/n] ");
+  }
+
+} while (again.toLowerCase() === 'y');
 
 function getLoanAmount() {
   //Prompt the user
@@ -81,8 +102,3 @@ function getMonthlyPayments(loanAmount, monthlyIntrestRate, loanDuration) {
     return payments;
   }
 }
-
-//Formated output
-console.log(`\nWith the loan amount of $${loanAmount}`);
-console.log(`and an APR of ${apr}% for ${loanDuration} months,`);
-console.log(`your monthly payments will be $${monthlyPayments.toFixed(2)}`);
