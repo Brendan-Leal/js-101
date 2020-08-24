@@ -3,13 +3,13 @@ let again;
 let apr = 0;
 
 do {
-
+  console.clear();
   let loanAmount = getLoanAmount();
   let monthlyIntrestRate = getMonthlyIntrestRate();
   let loanDuration = getLoanDurration();
   let monthlyPayments = getMonthlyPayments(loanAmount, monthlyIntrestRate, loanDuration);
 
-  //Formated output
+  //Formatted output
   console.log(`\nWith the loan amount of $${loanAmount}`);
   console.log(`and an APR of ${apr}% for ${loanDuration} months,`);
   console.log(`your monthly payments will be $${monthlyPayments.toFixed(2)}`);
@@ -28,7 +28,7 @@ do {
 
 function getLoanAmount() {
   //Prompt the user
-  console.log("\nWhat is the amount loaned");
+  console.log("What is the amount loaned");
   let amount = readline.question("$ ");
 
   //Verify input is a number and that it is posative
