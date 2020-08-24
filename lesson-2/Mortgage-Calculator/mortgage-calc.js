@@ -50,7 +50,6 @@ function getMonthlyIntrestRate() {
 
     return percent;
   }
-
 }
 
 function getLoanDurration() {
