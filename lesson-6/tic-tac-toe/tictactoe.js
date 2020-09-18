@@ -1,28 +1,46 @@
 let readline = require("readline-sync");
-const MAX_GAMES = 5;
+const MAX_GAMES = 3;
 const AVAILABLE_SPACE = " ";
 const HUMAN_MARK = "X";
 const COMPUTER_MARK = "O";
+const MIN_WINNING_SCORE = 2;
 
 while (true) {
-  let board = initializeBoard();
+  let scores = {playerScore: 0, computerScore: 0};
 
   while (true) {
-    displayBoard(board);
+    let board = initializeBoard();
 
-    playerChoosesSquare(board);
-    if (someoneWon(board) || boardFull(board)) break;
+    while (true) {
+      displayBoard(board, scores);
 
-    computerChoosesSquare(board);
-    if (someoneWon(board) || boardFull(board)) break;
-  }
+      playerChoosesSquare(board);
+      if (someoneWon(board) || boardFull(board)) {
+        updateScore(board, scores);
+        break;
+      }
 
-  displayBoard(board);
+      computerChoosesSquare(board);
+      if (someoneWon(board) || boardFull(board)) {
+        updateScore(board, scores);
+        break;
+      }
+    }
 
-  if (someoneWon(board)) {
-    prompt(`${detectWinner(board)} won!`);
-  } else {
-    prompt("Cat's Game");
+    displayBoard(board, scores);
+
+    if (someoneWon(board)) {
+      prompt(`${detectWinner(board)} won!`);
+    } else {
+      prompt("Cat's Game");
+    }
+
+    prompt("Press enter to continue.");
+    readline.question();
+
+    if (scores.playerScore === MIN_WINNING_SCORE ||
+        scores.computerScore === MIN_WINNING_SCORE) break;
+
   }
 
   prompt("Play Again? (y/n)");
@@ -33,6 +51,27 @@ while (true) {
 prompt("Thanks for playing Tic-Tac-Toe");
 
 //==============================================================================
+function displayScore(scores) {
+  console.log("-----------------------");
+  console.log("|   Firts to 2 wins   |");
+  console.log(`| You:  ${scores.playerScore}             |`);
+  console.log(`| Computer:  ${scores.computerScore}        |`);
+  console.log("-----------------------");
+}
+
+function updateScore(board, scores) {
+  switch (detectWinner(board)) {
+    case "Player":
+      scores.playerScore += 1;
+      return board;
+    case "Computer":
+      scores.computerScore += 1;
+      return scores;
+    default:
+      return scores;
+  }
+}
+
 function joinOr(emptySquares, lastItemDelimiter) {
   let lastIndex = emptySquares.length - 1;
   let lastItem = emptySquares[lastIndex];
@@ -93,7 +132,7 @@ function initializeBoard() {
   return board;
 }
 
-function displayBoard(board) {
+function displayBoard(board, scores) {
   console.clear();
   console.log(`You are ${HUMAN_MARK}\nComputer is ${COMPUTER_MARK}`);
   console.log('');
@@ -109,6 +148,7 @@ function displayBoard(board) {
   console.log(`  ${board["7"]}  |  ${board["8"]}  |  ${board["9"]}`);
   console.log('     |     |');
   console.log('');
+  displayScore(scores);
 }
 
 function playerChoosesSquare(board) {
