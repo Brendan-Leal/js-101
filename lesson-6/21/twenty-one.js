@@ -1,9 +1,6 @@
-let readline = require("readline-sync");
+const readline = require("readline-sync");
 const BLACKJACK = 21;
-const SUITS = ['\u2764', '\u2756', '\u2660', '\u2663'];
 let playAgain;
-
-// console.log(SUITS);
 
 do {
   let deck = initializeDeckOfCards();
@@ -22,7 +19,7 @@ do {
     playersChoice = setPlayersChoice();
 
     if (playersChoice === "h") {
-      playersHand.push(dealOneCard(deck));
+      playersHand.push(dealCardFrom(deck));
     }
 
   } while (playersChoice === "h" &&
@@ -38,7 +35,7 @@ do {
   while (dealersTotal < 17) {
     if (isBustingHand(playersHand)) break;
 
-    dealersHand.push(dealOneCard(deck));
+    dealersHand.push(dealCardFrom(deck));
     dealersTotal = calculateHandTotal(dealersHand);
   }
 
@@ -50,6 +47,7 @@ do {
 
 //==============================================================================
 function initializeDeckOfCards() {
+  // All 52 cards in a nested array, each sub array holds 2 elements.
   return [
     ["Ace", "Hearts"], ["2", "Hearts"], ["3", "Hearts"],
     ["4", "Hearts"], ["5", "Hearts"], ["6", "Hearts"],
@@ -75,9 +73,6 @@ function initializeDeckOfCards() {
     ["10", "Spades"], ["Jack", "Spades"], ["Queen", "Spades"],
     ["King", "Spades"]
   ];
-
-  // return [["Ace", "Spades"], ["2", "Spades"], ["3", "Spades"],
-  //   ["4", "Spades"], ["5", "Spades"], ["6", "Spades"]]; // 6 cards
 }
 
 function shuffle(deck) {
@@ -89,16 +84,18 @@ function shuffle(deck) {
 }
 
 function initializeHand(deck) {
+  /* When a new round starts this function deals 2 cards to the player and
+  dealer. It uses the helper function dealCardFrom() which takes the top card
+  from the deck. This function returns a nested array of 2 cards
+  ex. [ [ '8', 'Hearts' ], [ 'Jack', 'Diamonds' ] ]
+  */
   const TWO_CARDS = 2;
-  let card = [];
+  let hand = [];
 
   for (let cardsDealt = 1; cardsDealt <= TWO_CARDS; cardsDealt++) {
-    let randomCardIndex = Math.floor(Math.random() * (deck.length - 1) + 1);
-
-    card.push(deck[randomCardIndex]);
-    removeCardFromDeck(deck, randomCardIndex);
+    hand.push(dealCardFrom(deck));
   }
-  return card;
+  return hand;
 }
 
 function displayCardTable(playersCards, dealersCards, showHand) {
@@ -106,21 +103,23 @@ function displayCardTable(playersCards, dealersCards, showHand) {
   let playersTotal = calculateHandTotal(playersCards);
   let dealersTotal = calculateHandTotal(dealersCards);
 
-
   console.log("___________________________");
   console.log("_______Dealers Cards_______\n");
+  // uncomment to see dealers cards before they are revealed
+  //console.log(dealersCards);
   if (showHand) {
     displayCards(dealersCards);
-    console.log(`\nTotal: ${dealersTotal}`);
+    console.log(`\nDealer has: ${dealersTotal}`);
   } else {
-    displayDealersCardsHidden(dealersCards)
+    displayDealersCardsHidden(dealersCards);
   }
   console.log("___________________________");
 
-  console.log("\n\n\n\n\n\n\n___________________________");
+  console.log("\n\n\n\n___________________________");
   console.log("_______Players Cards_______\n");
+  // console.log(playersCards);
   displayCards(playersCards);
-  console.log(`\nTotal: ${playersTotal}`);
+  console.log(`\nYou have: ${playersTotal}`);
   console.log("___________________________");
 }
 
@@ -131,28 +130,18 @@ function isBlackjack(cards) {
 function setPlayersChoice() {
   let choice = readline.question("Hit or stay (h/s)? ");
 
-  while (!["h", "s"].includes(choice[0].toLowerCase())) {
+  while (choice === "" || !["h", "s"].includes(choice[0].toLowerCase())) {
     choice = readline.question("Hit or stay (h/s)? ");
   }
   return choice[0].toLowerCase();
 }
 
-function dealOneCard(deck) {
-  let card = deck.slice(0, 1);
-
-  removeCardFromDeck(deck, 0);
-  // console.log(card);
-
-  return card[0];
-}
-
-function removeCardFromDeck(deck, index) {
-  deck.splice(index, 1);
+function dealCardFrom(deck) {
+  return deck.splice(0, 1)[0];
 }
 
 function isBustingHand(cards) {
   let total = calculateHandTotal(cards);
-
   return total > BLACKJACK;
 }
 
@@ -165,44 +154,45 @@ function displayWinner(playersHand, dealersHand, showDealersHand) {
   if (isBlackjack(playersHand) && isBlackjack(dealersHand)) {
     console.log("Push, no winner");
   } else if (isBlackjack(playersHand)) {
-    console.log("BACKJACK, YOU WIN!"); // check
-  } else if (isBustingHand(dealersHand) && playersTotal <= BLACKJACK) { // check
-    console.log("Dealer busts, you win!"); // check
+    console.log("BACKJACK, YOU WIN!");
+  } else if (dealersTotal === playersTotal) {
+    console.log("Push, it's a tie");
+  }  else if (isBustingHand(dealersHand) && playersTotal <= BLACKJACK) {
+    console.log("Dealer busts, you win!");
   } else if (isBustingHand(playersHand) && dealersTotal <= BLACKJACK) {
-    console.log("You busted, sorry not a winner"); // Check
-  } else if (isBustingHand(playersHand) && isBustingHand(dealersHand)) { // check
-    console.log("Sorry dealer wins even if we both bust"); //check
-  } else if (dealersTotal > playersTotal) { // check
-    console.log("Sorry, not a winner"); // check
-  } else if (playersTotal > dealersTotal) { // check
-    console.log("You win!"); // check
-  }
-}
-
-function displayCards(cards) {
-  for (let i = 0; i < cards.length; i++) {
-    let cardName = cards[i].join(" of ");
-
-    console.log(cardName.padStart(cardName.length + 6));
+    console.log("You busted, sorry not a winner");
+  } else if (isBustingHand(playersHand) && isBustingHand(dealersHand)) {
+    console.log("Sorry dealer wins even if we both bust");
+  } else if (dealersTotal > playersTotal) {
+    console.log("Sorry, not a winner");
+  } else if (playersTotal > dealersTotal) {
+    console.log("You win!");
   }
 }
 
 function displayDealersCardsHidden(dealersCards) {
-  let visableCard = dealersCards[0].join(" of ");
-  console.log(visableCard.padStart(visableCard.length + 6));
-  console.log("      [Card Hidden]");
+  let isDealerCardHidden = true;
+
+  printDashLine(dealersCards);
+  printCardLine1(dealersCards, isDealerCardHidden);
+  printBlankCardLine(dealersCards);
+  printCardLine2(dealersCards, isDealerCardHidden);
+  printBlankCardLine(dealersCards);
+  printCardLine3(dealersCards, isDealerCardHidden);
+  printDashLine(dealersCards);
 }
 
 function setPlayAgain() {
   let choice = readline.question("Play another hand (y/n)?");
 
-  while (!["y", "n"].includes(choice[0].toLowerCase())) {
+  while (choice === "" || !["y", "n"].includes(choice[0].toLowerCase())) {
     choice = readline.question("Play another hand (y/n)?");
   }
   return choice[0].toLowerCase();
 }
 
 function calculateHandTotal(cards) {
+  /* This function returns a single number */
   let cardValues = cards.map(card => card[0]);
 
   let total = 0;
@@ -220,6 +210,130 @@ function calculateHandTotal(cards) {
   cardValues.filter(value => value === "Ace").forEach((_) => {
     if (total > 21) total -= 10;
   });
-
   return total;
+}
+
+function displayCards(cards) {
+  let isDealerCardHidden  = false;
+
+  printDashLine(cards);
+  printCardLine1(cards, isDealerCardHidden);
+  printBlankCardLine(cards);
+  printCardLine2(cards, isDealerCardHidden);
+  printBlankCardLine(cards);
+  printCardLine3(cards, isDealerCardHidden);
+  printDashLine(cards);
+}
+
+/* =============================================================================
+  The functions below are for formating the cards to print to the terminal in
+  the correct way. They don't effect the the main logic of the game.
+*/
+function printDashLine(cards) {
+  let line = "---------";
+
+  cards.forEach((_) => {
+    process.stdout.write(line.padEnd(12, " "));
+  });
+  console.log("");
+}
+
+function printCardLine1(cards, isDealerCardHidden) {
+  let cardCount = cards.length;
+
+  if (isDealerCardHidden) {
+    cardCount = 1;
+    for (let i = 0; i < cardCount; i++) {
+      let line1 = `|${cards[i][0].padEnd(7, " ")}|`;
+
+      process.stdout.write(line1.padEnd(12, " "));
+      process.stdout.write("|       |");
+    }
+    console.log("");
+
+  } else {
+    for (let i = 0; i < cardCount; i++) {
+      let line1 = `|${cards[i][0].padEnd(7, " ")}|`;
+
+      process.stdout.write(line1.padEnd(12, " "));
+    }
+    console.log("");
+  }
+}
+
+function printBlankCardLine(cards) {
+  let cardCount = cards.length;
+  let blankLine = "|       |";
+
+  for (let i = 0; i < cardCount; i++) {
+    process.stdout.write(blankLine.padEnd(12, " "));
+  }
+  console.log("");
+}
+
+function printCardLine2(cards, isDealerCardHidden) {
+  let cardCount = cards.length;
+
+  if (isDealerCardHidden) {
+    cardCount = 1;
+
+    for (let i = 0; i < cardCount; i++) {
+      let symbol = setSuitSymbol(cards[i]);
+      let line2 = `|${symbol.padStart(4, " ")}   |`;
+      process.stdout.write(line2.padEnd(12, " "));
+      process.stdout.write("|       |");
+    }
+    console.log("");
+
+  } else {
+    for (let i = 0; i < cardCount; i++) {
+      let symbol = setSuitSymbol(cards[i]);
+      let line2 = `|${symbol.padStart(4, " ")}   |`;
+      process.stdout.write(line2.padEnd(12, " "));
+    }
+    console.log("");
+  }
+}
+
+function printCardLine3(cards, isDealerCardHidden) {
+  let cardCount = cards.length;
+
+  if (isDealerCardHidden) {
+    cardCount = 1;
+
+    for (let i = 0; i < cardCount; i++) {
+      let line4 = `|${cards[i][0].padStart(7, " ")}|`;
+      process.stdout.write(line4.padEnd(12, " "));
+      process.stdout.write("|       |");
+    }
+    console.log("");
+
+  } else {
+    for (let i = 0; i < cardCount; i++) {
+      let line4 = `|${cards[i][0].padStart(7, " ")}|`;
+      process.stdout.write(line4.padEnd(12, " "));
+    }
+    console.log("");
+  }
+}
+
+function setSuitSymbol(card) {
+  const SUITS_SYMBOL = {
+    Hearts: "\u2764",
+    Diamonds: "\u2756",
+    Clubs: "\u2663",
+    Spades: "\u2660",
+  };
+
+  if (card[1] === "Hearts") {
+    return SUITS_SYMBOL.Hearts;
+  } else if (card[1] === "Diamonds") {
+    return SUITS_SYMBOL.Diamonds;
+  } else if (card[1] === "Clubs") {
+    return SUITS_SYMBOL.Clubs;
+  } else if (card[1] === "Spades") {
+    return SUITS_SYMBOL.Spades;
+  } else {
+    return "error";
+  }
 }
